@@ -2,3 +2,11 @@ venv/
 __pycache__/
 *.pyc
 .env
+
+node_modules/
+
+uploads/
+outputs/
+
+tasksight.db
+backend/tasksight.db

@@ -1,33 +1,38 @@
 from fastapi import FastAPI
-from pydantic import BaseModel
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
+
+from routes.analyze import router as analyze_router
+from routes.compare import router as compare_router
+from routes.history import router as history_router
 
 app = FastAPI()
 
+# Enable CORS
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+# Serve outputs folder
+app.mount(
+    "/outputs",
+    StaticFiles(directory="../outputs"),
+    name="outputs"
+)
 
 @app.get("/")
 def home():
-    return {"message": "TaskSight AI Backend Running"}
-
-
-@app.get("/about")
-def about():
     return {
-        "project": "TaskSight AI",
-        "purpose": "Vision-Language Model Experimentation Platform",
-        "status": "Backend Working Successfully"
+        "message": "TaskSight AI Backend Running"
     }
 
-@app.get("/greet")
-def greet(name: str):
-    return {"message": f"Hello {name}, welcome to TaskSight AI"}
+# Register routes
+app.include_router(analyze_router)
 
-class UserInput(BaseModel):
-    name: str
-    role: str
+app.include_router(compare_router)
 
-
-@app.post("/user")
-def create_user(user: UserInput):
-    return {
-        "message": f"{user.name} is working as {user.role}"
-    }
+app.include_router(history_router)
